@@ -9,7 +9,7 @@ class MyApp < Sinatra::Base
 
   configure do
     set :root, File.dirname(__FILE__) 
-    set :uploads, "#{root}/uploads"
+    set :uploads, File.join(root, 'uploads')
     Dir.mkdir uploads unless Dir.exists? uploads
   end
 
@@ -21,9 +21,10 @@ class MyApp < Sinatra::Base
     content_type 'application/json', :charset => 'utf-8' if request.xhr?
     
     file_hash = params[:file]
-    save_path = File.join(settings.uploads, file_hash[:filename])
+    save_path = File.join settings.uploads, file_hash[:filename]
     File.open(save_path, 'wb') { |f| f.write file_hash[:tempfile].read }
     
+    # should allways return json
     file_hash.to_json
   end
 end
