@@ -12,7 +12,8 @@
     var settings  = {
       error      : $.noop, 
       success    : $.noop,
-      start      : $.noop
+      start      : $.noop,
+      complete   : $.noop
     };
 
     return $(this).each(function(){
@@ -37,7 +38,7 @@
 
           fileInput.after(pBar);
 
-          $.ajax({
+          var xhrUpload = $.ajax({
             type : "POST",
             url  : settings.url,
             xhr  : function(){
@@ -64,7 +65,7 @@
             error : function(xhr, text, error) {
               if (xhr.status == 422) {
                 settings.error.apply(self, [$.parseJSON(xhr.responseText)]);
-              } else {
+              } else if (text != 'abort') {
                 settings.error.apply(self);
               };
             },
@@ -76,8 +77,13 @@
             contentType : "application/octet-stream",
             dataType    : "json",
             processData : false,
-            data        : file, 
+            data        : file 
           });
+
+          $(self).bind('cancelUpload', function(){
+            xhrUpload.abort();
+            return true;
+          })
         });
       });
 
